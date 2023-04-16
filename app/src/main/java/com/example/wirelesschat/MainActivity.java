@@ -59,7 +59,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     @SuppressLint("NewApi")
-    private static final android.icu.text.SimpleDateFormat sdf3 = new android.icu.text.SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");// time format
+    private static final android.icu.text.SimpleDateFormat sdf3 = new android.icu.text.SimpleDateFormat("yyyy-MM-dd-HH:mm:ss.SSS");// time format
     Date parsed_receivedDate= new Date();
     Date currentTime_check = new Date();
     Button btnOnOff, btnDiscover, btnSend;
@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                             parsed_receivedDate = sdf3.parse(received_date);
-                             currentTime_check = Calendar.getInstance().getTime();
+                            currentTime_check = Calendar.getInstance().getTime();
                         }
                     } catch (ParseException e) {
                         e.printStackTrace();
@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 String msg=writeMsg.getText().toString();
-                String date_read = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss").format(Calendar.getInstance().getTime());
+                String date_read = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss.SSS").format(Calendar.getInstance().getTime());
                 String combined_message = msg+ "\n Timestamp:"+ " "+date_read;
                 System.out.println("The message sent:"+combined_message);
                 sendReceive.write(combined_message.getBytes());
@@ -266,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
 
         long elapsedSeconds = different / secondsInMilli;
 
-        return elapsedDays+"days,"+elapsedHours+"hours," +elapsedMinutes+"minutes,"+elapsedSeconds+"seconds" ;
+        return elapsedDays+"days,"+elapsedHours+"hours," +elapsedMinutes+"minutes,"+elapsedSeconds+"seconds," +different+"milliseconds" ;
     }
 
 
