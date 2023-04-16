@@ -1,5 +1,6 @@
 package com.example.wirelesschat;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,6 +12,7 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -35,6 +37,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -47,13 +50,18 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-
+    @SuppressLint("NewApi")
+    private static final android.icu.text.SimpleDateFormat sdf3 = new android.icu.text.SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");// time format
+    Date parsed_receivedDate= new Date();
+    Date currentTime_check = new Date();
     Button btnOnOff, btnDiscover, btnSend;
     ListView listView, listViewDevices, RB0;
     TextView read_msg_box, connectionStatus;
@@ -125,16 +133,35 @@ public class MainActivity extends AppCompatActivity {
                     return super.onOptionsItemSelected(item);
         }
     }
-
     Handler handler=new Handler(new Handler.Callback() {
         @Override
+
         public boolean handleMessage(Message msg) {
-            switch (msg.what)
-            {
+            switch (msg.what) {
                 case MESSAGE_READ:
-                    byte[] readBuff= (byte[]) msg.obj;
-                    String tempMsg=new String(readBuff,0,msg.arg1);
+                    byte[] readBuff = (byte[]) msg.obj;
+                    String tempMsg = new String(readBuff, 0, msg.arg1);
+                    //String current_datetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime());//dont need
+                    System.out.println("The message read:" + tempMsg);//dont need
+                    String[] arr = null;
+                    arr = tempMsg.split(" ");
+                    String received_date = arr[arr.length - 1];
+                    System.out.println("Date from array:" + arr[arr.length - 1]);//dont need
+                    //Date parsed_receivedDate = null;
+                    try {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            parsed_receivedDate = sdf3.parse(received_date);
+                             currentTime_check = Calendar.getInstance().getTime();
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println("parsed_receivedDate:" + parsed_receivedDate);//dont need
+                    System.out.println("currentTime_check:" + currentTime_check);//dont need
+                    String elapsedTime = printDifference(parsed_receivedDate, currentTime_check);
                     read_msg_box.setText(tempMsg);
+                    System.out.println("Elapsed Time:" + elapsedTime);//dont need
+                    Toast.makeText(MainActivity.this, "Elapsed Time:" + elapsedTime, Toast.LENGTH_LONG).show();
                     break;
             }
             return true;
@@ -205,13 +232,41 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 String msg=writeMsg.getText().toString();
-                String date_read = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
-                String combined_message = date_read + "| "+ msg;
+                String date_read = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss").format(Calendar.getInstance().getTime());
+                String combined_message = msg+ "\n Timestamp:"+ " "+date_read;
+                System.out.println("The message sent:"+combined_message);
                 sendReceive.write(combined_message.getBytes());
             }
         });
 
 
+    }
+
+    public String printDifference(Date startDate, Date endDate) { //method to calculate the difference between the sending time and received time.
+        //milliseconds
+        long different = endDate.getTime() - startDate.getTime();
+
+        System.out.println("startDate : " + startDate);
+        System.out.println("endDate : "+ endDate);
+        System.out.println("different : " + different);
+
+        long secondsInMilli = 1000;
+        long minutesInMilli = secondsInMilli * 60;
+        long hoursInMilli = minutesInMilli * 60;
+        long daysInMilli = hoursInMilli * 24;
+
+        long elapsedDays = different / daysInMilli;
+        different = different % daysInMilli;
+
+        long elapsedHours = different / hoursInMilli;
+        different = different % hoursInMilli;
+
+        long elapsedMinutes = different / minutesInMilli;
+        different = different % minutesInMilli;
+
+        long elapsedSeconds = different / secondsInMilli;
+
+        return elapsedDays+"days,"+elapsedHours+"hours," +elapsedMinutes+"minutes,"+elapsedSeconds+"seconds" ;
     }
 
 
