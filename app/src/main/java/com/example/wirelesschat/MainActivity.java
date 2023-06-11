@@ -3,8 +3,6 @@ package com.example.wirelesschat;
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pConfig;
@@ -14,35 +12,22 @@ import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Build;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.os.StrictMode;
 import android.os.Bundle;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.PopupMenu;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewFlipper;
-
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -67,26 +52,16 @@ public class MainActivity extends AppCompatActivity {
     TextView read_msg_box, connectionStatus;
     EditText writeMsg;
     View v;
-
     WifiManager wifiManager;
     WifiP2pManager mManager;
     WifiP2pManager.Channel mChannel;
-
     WifiP2pDevice connectedDevice;
-
-
-
     BroadcastReceiver mReceiver;
     IntentFilter mIntentFilter;
-
     List<WifiP2pDevice> peers=new ArrayList<WifiP2pDevice>();
     String[] deviceNameArray;
     WifiP2pDevice[] deviceArray;
-
-
-
     static final int MESSAGE_READ=1;
-
     ServerClass serverClass;
     ClientClass clientClass;
     SendReceive sendReceive;
@@ -110,44 +85,34 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        //Intent serverIntent = null;
         switch (item.getItemId()) {
             case R.id.onOff:
                 if(wifiManager.isWifiEnabled())
                 {
                     wifiManager.setWifiEnabled(false);
-                    //btnOnOff.setText("ON");
                 }else {
                     wifiManager.setWifiEnabled(true);
-                    //btnOnOff.setText("OFF");
                 }
                 return true;
             case R.id.discover:
-
-
             return true;
-
-
-
             default:
                     return super.onOptionsItemSelected(item);
         }
     }
+
     Handler handler=new Handler(new Handler.Callback() {
         @Override
-
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
                 case MESSAGE_READ:
                     byte[] readBuff = (byte[]) msg.obj;
                     String tempMsg = new String(readBuff, 0, msg.arg1);
-                    //String current_datetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime());//dont need
                     System.out.println("The message read:" + tempMsg);//dont need
                     String[] arr = null;
                     arr = tempMsg.split(" ");
                     String received_date = arr[arr.length - 1];
                     System.out.println("Date from array:" + arr[arr.length - 1]);//dont need
-                    //Date parsed_receivedDate = null;
                     try {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                             parsed_receivedDate = sdf3.parse(received_date);
@@ -169,19 +134,6 @@ public class MainActivity extends AppCompatActivity {
     });
 
     private void exqListener() {
-//        btnOnOff.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if(wifiManager.isWifiEnabled())
-//                {
-//                    wifiManager.setWifiEnabled(false);
-//                    btnOnOff.setText("ON");
-//                }else {
-//                    wifiManager.setWifiEnabled(true);
-//                    btnOnOff.setText("OFF");
-//                }
-//            }
-//        });
 
         btnDiscover.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -190,13 +142,11 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess() {
 
-                        //connectionStatus.setText("Discovery Started");
                         Toast.makeText(MainActivity.this, "Looking for devices", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onFailure(int i) {
-                        //connectionStatus.setText("Discovery Starting Failed");
                         Toast.makeText(MainActivity.this, "Unable to look for peers", Toast.LENGTH_LONG).show();
                     }
                 });
@@ -214,7 +164,6 @@ public class MainActivity extends AppCompatActivity {
                 mManager.connect(mChannel, config, new WifiP2pManager.ActionListener() {
                     @Override
                     public void onSuccess() {
-                        //Toast.makeText(getApplicationContext(),"Connected to "+device.deviceName,Toast.LENGTH_SHORT).show();
                         setSubStatus("You are CLIENT");
                     }
 
@@ -243,8 +192,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String printDifference(Date startDate, Date endDate) { //method to calculate the difference between the sending time and received time.
-        //milliseconds
-        long different = endDate.getTime() - startDate.getTime();
+        long different = endDate.getTime() - startDate.getTime();//milliseconds
 
         System.out.println("startDate : " + startDate);
         System.out.println("endDate : "+ endDate);
@@ -286,11 +234,9 @@ public class MainActivity extends AppCompatActivity {
         btnDiscover=(Button) findViewById(R.id.discover);
         btnSend=(Button) findViewById(R.id.sendButton);
         listView=(ListView) findViewById(R.id.peerListView);
-        //listViewDevices=(ListView) findViewById(R.id.lvDevice);
         read_msg_box=(TextView) findViewById(R.id.readMsg);
         connectionStatus=(TextView) findViewById(R.id.connectionStatus);
         writeMsg=(EditText) findViewById(R.id.writeMsg);
-        //RB0 = (ListView) findViewById(R.id.lvDevice);
         wifiManager= (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
         mManager= (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
@@ -305,7 +251,6 @@ public class MainActivity extends AppCompatActivity {
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
         mIntentFilter.addAction(WifiP2pManager.EXTRA_WIFI_P2P_GROUP);
     }
-
     WifiP2pManager.PeerListListener peerListListener=new WifiP2pManager.PeerListListener() {
         @Override
         public void onPeersAvailable(WifiP2pDeviceList peerList) {
@@ -348,12 +293,10 @@ public class MainActivity extends AppCompatActivity {
                 connectionStatus.setText("Connected");
 
                 setSubStatus("You are HOST ");
-                //Toast.makeText(MainActivity.this, connectedDevice, Toast.LENGTH_SHORT).show();
                 serverClass=new ServerClass();
                 serverClass.start();
             }else if(wifiP2pInfo.groupFormed) {
                 connectionStatus.setText("Connected");
-                //setSubStatus("You are Client connected to: "+wifiP2pInfo.groupOwnerAddress.getHostName());
                 clientClass=new ClientClass(groupOwnerAddress);
                 clientClass.start();
             }
